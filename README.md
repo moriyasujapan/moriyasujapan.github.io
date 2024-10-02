@@ -1,0 +1,1 @@
+# moriyasujapan.github.io
