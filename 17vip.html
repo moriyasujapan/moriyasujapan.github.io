@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>17VIP Bookmarklet</title>
+
+    <script>
+        function gen() {
+            let email = document.getElementById("email").value;
+            let tel = document.getElementById("tel").value;
+            let script = "javascript:";
+            script += 'document.getElementById("cc_mailAddress").value = "' + email + '";';
+            script += 'document.getElementById("cc_mailAddressConfirm").value = "' + email + '";';
+            script += 'document.getElementById("cc_telno").value = "' + tel + '";';
+            document.getElementById("scr").innerHTML = script;
+            document.getElementById("result").style.display = "block";
+            selectAll();
+        }
+        function selectAll() {
+            document.getElementById("scr").select();
+        }
+    </script>
+</head>
+
+<body>
+    <pre>
+        <input type="email" id="email" placeholder="example@17.live">
+        <input type="tel" id="tel" placeholder="09012345678">
+        <button onclick="gen();">Generate</button>
+        <div id="result" style="display: none;">
+            <textarea id="scr" id="scr" style="width: 100%"></textarea>
+            <button onclick="selectAll();">SelectAll</button>
+        </div>
+    </pre>
+
+</body>
+
+</html>
