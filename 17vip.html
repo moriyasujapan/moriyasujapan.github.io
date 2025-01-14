@@ -53,10 +53,13 @@
         function gen() {
             let email = document.getElementById("email").value;
             let tel = document.getElementById("tel").value;
+            let cvv = document.getElementById("cvv").value;
             let script = "javascript:";
-            script += 'document.getElementById("cc_mailAddress").value = "' + email + '";';
-            script += 'document.getElementById("cc_mailAddressConfirm").value = "' + email + '";';
-            script += 'document.getElementById("cc_telno").value = "' + tel + '";';
+
+            script += 'document.getElementById("cc_cvv").value = "' + cvv + '";' + "\n";
+            script += 'document.getElementById("cc_mailAddress").value = "' + email + '";' + "\n";
+            script += 'document.getElementById("cc_mailAddressConfirm").value = "' + email + '";' + "\n";
+            script += 'document.getElementById("cc_telno").value = "' + tel + '";' + "\n";
 
             script = obfuscate(script);
 
@@ -71,9 +74,15 @@
 </head>
 
 <body>
+    <h5>VIP自動入力</h5>
+    <ul>下記の作業を自動化します
+        <li>クレジットカードをサイトに登録済みで、１つ目のクレジットカードを選択する</li>
+        <li>メール、電話番号、CVVを自動的に入力し、次へボタンを押す</li>
+    </ul>
     <pre>
         <input type="email" id="email" placeholder="example@17.live">
         <input type="tel" id="tel" placeholder="09012345678">
+        <input type="tel" id="cvv" placeholder="セキュリティコード/3-4桁の数字">
         <button onclick="gen();">Generate</button>
         <div id="result" style="display: none;">
             <textarea id="scr" id="scr" style="width: 90%; height: 200px;"></textarea>
