@@ -7,8 +7,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta name="robots" content="noindex,nofollow">
     <title>17VIP Bookmarklet</title>
-
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
     <script>
+        var JavaScriptObfuscator = require('javascript-obfuscator');
+
+        function obfuscate(scr) {
+            var obfuscationResult = JavaScriptObfuscator.obfuscate(scr,
+                {
+                    compact: false,
+                    controlFlowFlattening: true,
+                    controlFlowFlatteningThreshold: 1,
+                    numbersToExpressions: true,
+                    simplify: true,
+                    stringArrayShuffle: true,
+                    splitStrings: true,
+                    stringArrayThreshold: 1
+                }
+            );
+            return obfuscationResult.getObfuscatedCode();      
+        }
+
         function gen() {
             let email = document.getElementById("email").value;
             let tel = document.getElementById("tel").value;
@@ -16,6 +34,9 @@
             script += 'document.getElementById("cc_mailAddress").value = "' + email + '";';
             script += 'document.getElementById("cc_mailAddressConfirm").value = "' + email + '";';
             script += 'document.getElementById("cc_telno").value = "' + tel + '";';
+
+            script = obfuscate(script);
+
             document.getElementById("scr").innerHTML = script;
             document.getElementById("result").style.display = "block";
             selectAll();
