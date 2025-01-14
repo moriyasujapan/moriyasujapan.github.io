@@ -53,8 +53,7 @@
             let email = document.getElementById("email").value;
             let tel = document.getElementById("tel").value;
             let cvv = document.getElementById("cvv").value;
-            let script = "javascript:";
-
+            let script = "";
             script += 'document.getElementById("cc_cvv").value = "' + cvv + '";' + "\n";
             script += 'document.getElementById("cc_mailAddress").value = "' + email + '";' + "\n";
             script += 'document.getElementById("cc_mailAddressConfirm").value = "' + email + '";' + "\n";
@@ -62,7 +61,7 @@
 
             script = obfuscate(script);
 
-            document.getElementById("scr").innerHTML = script;
+            document.getElementById("scr").innerHTML = "javascript:" + script;
             document.getElementById("result").style.display = "block";
             selectAll();
         }
