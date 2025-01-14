@@ -54,11 +54,12 @@
             let tel = document.getElementById("tel").value;
             let cvv = document.getElementById("cvv").value;
             let script = "";
+            script += 'document.getElementById("credit_checkbox").click();' + "\n";
             script += 'document.getElementById("cc_cvv").value = "' + cvv + '";' + "\n";
             script += 'document.getElementById("cc_mailAddress").value = "' + email + '";' + "\n";
             script += 'document.getElementById("cc_mailAddressConfirm").value = "' + email + '";' + "\n";
             script += 'document.getElementById("cc_telno").value = "' + tel + '";' + "\n";
-
+            script += 'document.getElementById("credit_form").submit();';
             script = obfuscate(script);
 
             document.getElementById("scr").innerHTML = "javascript:" + script;
