@@ -57,3 +57,7 @@ function gen() {
 function selectAll() {
     document.getElementById("scr").select();
 }
+
+const button = document.getElementById('generate');
+button.onclick = gen;
+
