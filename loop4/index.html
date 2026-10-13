@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LOOP4 最終予選ボーダー予想</title>
+<meta name="description" content="LOOP4 総当たり戦 最終予選の8位ボーダー予想と25名の通過予測">
+<meta property="og:title" content="LOOP4 最終予選ボーダー予想">
+<meta property="og:description" content="8位ボーダーは60点前後。25名の通過予測と必要な勝ち数">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Noto+Serif+JP:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--font-anthropic-sans:"Noto Sans JP",system-ui,sans-serif;--font-anthropic-serif:"Noto Serif JP",Georgia,serif;
+--color-fg:#1f1e1c;--color-fg-muted:#6b6862;--color-bg:#f7f6f2;--color-panel:#fff;--color-border-line:#e4e1da;
+--color-ok:#2f7d4f;--color-warn:#b7791f;--color-bad:#b3412e;
+--cds-chart-categorical-1:#4a7ab8;--cds-chart-grid:#ebe8e1;--cds-chart-reference:#8a867e;
+--cds-surface-popover:#fff;--cds-border:#dcd8cf;--cds-text-secondary:#6b6862;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.12);
+--cds-gap-xs:.25rem;--cds-gap-sm:.5rem;--cds-gap-md:1rem;--cds-gap-xl:2rem;--cds-pad-xs:.35rem;--cds-pad-sm:.6rem;--cds-pad-lg:1.1rem;
+--cds-radius:10px;--cds-font-size-caption:.8rem;--cds-font-size-body:.95rem;--cds-font-size-heading:1.1rem;--cds-font-size-title:clamp(1.6rem,4vw,2.2rem);
+--cds-font-weight-medium:500;--cds-dur-slow:.3s;--c1:#4a7ab8;--c2:#c2603a;--c3:#5a9a6e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--color-fg:#ecebe7;--color-fg-muted:#a29f98;--color-bg:#1a1918;--color-panel:#242321;--color-border-line:#3a3835;
+--cds-chart-categorical-1:#7aa3d8;--cds-chart-grid:#33312e;--cds-chart-reference:#8f8b84;--cds-surface-popover:#2c2b29;--cds-border:#45433f;--cds-text-secondary:#a29f98;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.5);--c1:#7aa3d8;--c2:#e08a63;--c3:#7fc093}}
+:root[data-theme="dark"]{--color-fg:#ecebe7;--color-fg-muted:#a29f98;--color-bg:#1a1918;--color-panel:#242321;--color-border-line:#3a3835;
+--cds-chart-categorical-1:#7aa3d8;--cds-chart-grid:#33312e;--cds-chart-reference:#8f8b84;--cds-surface-popover:#2c2b29;--cds-border:#45433f;--cds-text-secondary:#a29f98;--c1:#7aa3d8;--c2:#e08a63;--c3:#7fc093}
+html,body{margin:0;background:var(--color-bg);color:var(--color-fg)}
+#dash-root{max-width:1100px;margin:0 auto;padding:24px 16px 48px;box-sizing:border-box}
+.dash-skeleton{opacity:.4}
+.lx-pagefoot{margin-top:2rem;font-size:.75rem;color:var(--color-fg-muted)}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+window.dash=(function(){
+  const ids=["forecast-three", "models", "r2-border", "rematch", "sensitivity-three", "stages", "wins-needed"], store={}, subs=[];
+  ids.forEach(id=>store[id]={status:"loading",data:[]});
+  const run=()=>subs.forEach(f=>{try{f()}catch(e){console.error(e)}});
+  ids.forEach(id=>d3.csv("data/"+id+".csv").then(rows=>{store[id]={status:"ok",data:rows,columns:rows.columns};run()})
+    .catch(e=>{store[id]={status:"error",data:[],message:String(e)};run()}));
+  let t;addEventListener("resize",()=>{clearTimeout(t);t=setTimeout(run,120)});
+  return {data:id=>store[id]||{status:"missing",data:[]},onData:f=>{subs.push(f);f()},
+    colors:["var(--c1)","var(--c2)","var(--c3)"]};
+})();
+</script>
+</head><body><div id="dash-root">
+<style>
+/* 1カラムの分析レポート。カードは広いときだけ2つ並ぶ */
+.lx {
+  --lx-accent: var(--cds-chart-categorical-1, #4a7ab8);
+  display: flex; flex-direction: column; gap: var(--cds-gap-xl);
+  font-family: var(--font-anthropic-sans); color: var(--color-fg);
+  font-variant-numeric: tabular-nums;
+}
+.lx-head { display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+.lx-eyebrow { margin: 0; font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.lx-title { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); text-wrap: balance; }
+.lx-lede { margin: 0; max-width: 62ch; font-size: var(--cds-font-size-body); line-height: 1.6; }
+.lx-lede b { font-weight: var(--cds-font-weight-medium); }
+
+.lx-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+.lx-tile { display: flex; flex-direction: column; gap: var(--cds-gap-xs); background: var(--color-panel);
+  border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.lx-tile--lead { border-color: var(--lx-accent); }
+.lx-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lx-tile-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; }
+.lx-tile-value small { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lx-tile-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lx-three { display: flex; gap: var(--cds-gap-md); flex-wrap: wrap; }
+.lx-three div { display: flex; flex-direction: column; }
+.lx-three span:first-child { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lx-three span:last-child { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); }
+
+.lx-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+.lx-card { min-width: 0; display: flex; flex-direction: column; gap: var(--cds-gap-sm); background: var(--color-panel);
+  border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.lx-card h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.lx-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.55; }
+.lx-chart { position: relative; min-width: 0; }
+.lx-chart svg { display: block; overflow: visible; }
+.lx-legend { display: flex; gap: var(--cds-gap-md); flex-wrap: wrap; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lx-legend span { display: inline-flex; align-items: center; gap: .3rem; }
+.lx-legend i { width: .6rem; height: .6rem; border-radius: 999px; display: inline-block; }
+.lx-legend i.open { background: transparent; border: 1.5px solid currentColor; }
+
+.lx-scroll { overflow-x: auto; min-width: 0; }
+.lx-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+.lx-table th, .lx-table td { padding: .4rem .5rem; text-align: right; white-space: nowrap; }
+.lx-table th { font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted);
+  border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-panel); }
+.lx-table td { border-bottom: 1px solid var(--color-border-line); }
+.lx-table .lx-name, .lx-table .lx-left { text-align: left; }
+.lx-table .lx-name { white-space: normal; max-width: 13rem; }
+.lx-table .lx-wide { white-space: normal; min-width: 11rem; }
+.lx-tall { max-height: 30rem; overflow: auto; }
+.lx-table tr.lx-in td { background: color-mix(in srgb, var(--lx-accent) 9%, transparent); }
+.lx-table tr.lx-out td { color: var(--color-fg-muted); }
+.lx-table tr.lx-best td { font-weight: var(--cds-font-weight-medium); }
+.lx-rank { color: var(--color-fg-muted); width: 2.2rem; }
+.lx-barcell { display: flex; align-items: center; justify-content: flex-end; gap: .4rem; }
+.lx-bar { flex: 0 0 3.2rem; height: .4rem; border-radius: 999px; background: var(--cds-chart-grid); overflow: hidden; }
+.lx-bar i { display: block; height: 100%; border-radius: 999px; background: var(--lx-accent); }
+
+.lx-tip { position: absolute; pointer-events: none; opacity: 0; transition: opacity .12s;
+  background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius);
+  box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm);
+  font-size: var(--cds-font-size-caption); z-index: 5; }
+.lx-tip-name { color: var(--cds-text-secondary); margin-bottom: .15rem; }
+.lx-tip-row { display: flex; gap: .6rem; justify-content: space-between; }
+.lx-tip-row i { width: .55rem; height: .55rem; border-radius: 999px; display: inline-block; margin-right: .3rem; }
+
+.lx-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.6; max-width: 62ch; }
+.lx-foot p { margin: 0 0 .4rem; }
+.lx-foot ul { margin: 0; padding-left: 1.1rem; }
+[data-dash-source-state="empty"] { color: transparent; }
+[data-dash-source-state="refreshing"] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="lx">
+  <header class="lx-head">
+    <p class="lx-eyebrow">LOOP4 総当たり戦</p>
+    <h1 class="lx-title" id="top">最終予選のボーダー予想</h1>
+    <p class="lx-lede">
+      <span class="lx-val" data-source="stages" data-field="players" data-where="stage=最終予選">—</span>名で<b><span class="lx-val" data-source="stages" data-field="slots" data-where="stage=最終予選">—</span>枠</b>。
+      相手が <span class="lx-val" data-source="stages" data-field="max_games" data-where="stage=最終予選">—</span>人しかいないので上限は
+      <span class="lx-val" data-source="stages" data-field="max_points" data-where="stage=最終予選">—</span>点どまりで、
+      8位のボーダーは<b>60点前後</b>。強さの置き方を3通り試しても
+      <span class="lx-val" data-source="sensitivity-three" data-field="wl_median" data-where="coverage=0.9">—</span>〜<span class="lx-val" data-source="sensitivity-three" data-field="mix_median" data-where="coverage=0.9">—</span>点に収まります。
+      採用しているのは<b>勝敗とコインの合わせ技</b>（コインの中央値と上位10%を土台に、勝敗で動かす）です。
+    </p>
+  </header>
+
+  <section class="lx-tiles">
+    <div class="lx-tile lx-tile--lead">
+      <span class="lx-tile-label">8位ボーダー予想（合わせ技・成立率90%）</span>
+      <span class="lx-tile-value"><span class="lx-val" data-source="sensitivity-three" data-field="mix_median" data-where="coverage=0.9">—</span> <small>点</small></span>
+      <span class="lx-tile-note">想定レンジ <span class="lx-val" data-source="sensitivity-three" data-field="mix_p10" data-where="coverage=0.9">—</span>〜<span class="lx-val" data-source="sensitivity-three" data-field="mix_p90" data-where="coverage=0.9">—</span>点</span>
+    </div>
+    <div class="lx-tile">
+      <span class="lx-tile-label">定義を替えたときのボーダー</span>
+      <div class="lx-three">
+        <div><span>勝敗</span><span class="lx-val" data-source="sensitivity-three" data-field="wl_median" data-where="coverage=0.9">—</span></div>
+        <div><span>コイン</span><span class="lx-val" data-source="sensitivity-three" data-field="coin_median" data-where="coverage=0.9">—</span></div>
+        <div><span>合わせ技</span><span class="lx-val" data-source="sensitivity-three" data-field="mix_median" data-where="coverage=0.9">—</span></div>
+      </div>
+      <span class="lx-tile-note">ボーダー自体はほぼ動きません</span>
+    </div>
+    <div class="lx-tile">
+      <span class="lx-tile-label">必要な勝ち数（ボーナスなし）</span>
+      <span class="lx-tile-value"><span class="lx-val" data-source="wins-needed" data-field="b0" data-where="games=24">—</span> <small>勝 / 24戦</small></span>
+      <span class="lx-tile-note">20戦だと <span class="lx-val" data-source="wins-needed" data-field="b0" data-where="games=20">—</span>勝。埋めた方が軽い</span>
+    </div>
+    <div class="lx-tile">
+      <span class="lx-tile-label">通過枠</span>
+      <span class="lx-tile-value"><span class="lx-val" data-source="stages" data-field="slots" data-where="stage=最終予選">—</span> <small>/ <span class="lx-val" data-source="stages" data-field="players" data-where="stage=最終予選">—</span>名</small></span>
+      <span class="lx-tile-note">通過率 <span class="lx-val" data-source="stages" data-field="pass_rate" data-fmt="pct" data-where="stage=最終予選">—</span>。2次は <span class="lx-val" data-source="stages" data-field="pass_rate" data-fmt="pct" data-where="stage=2次予選">—</span></span>
+    </div>
+  </section>
+
+  <section class="lx-card">
+    <h2 id="models">強さをどう定義するか</h2>
+    <p class="lx-note">
+      学習に使った試合と検証に使った試合を完全に分けて測った結果。予測の<b>当たりやすさは logloss</b>で見ます（小さいほど良い。確率の精度まで含むので、シミュレーションにはこちらが効きます）。
+    </p>
+    <div class="lx-scroll">
+      <table class="lx-table" data-source="models" data-row-key="regime,model">
+        <thead><tr>
+          <th class="lx-left lx-wide" data-field="regime">検証のしかた</th>
+          <th class="lx-left lx-wide" data-field="model">強さの定義</th>
+          <th data-field="accuracy">的中率 %</th>
+          <th data-field="logloss">logloss</th>
+          <th data-field="auc">AUC</th>
+        </tr></thead>
+        <tbody id="lx-models"></tbody>
+      </table>
+    </div>
+    <p class="lx-note">
+      <b>横の行で結論が入れ替わります。</b>1か月後の別ステージを当てるならコインが強く、翌日以降の数日を当てるなら勝敗の積み上げが強い。
+      最終予選は2次の翌日に始まるので<b>短期の行</b>が効く条件です。両方を足した<b>合わせ技</b>が短期で最良になり、これを採用しています。
+      土台は<b>コインの中央値（普段の集客）と上位10%（太客がついたときに出せる額）</b>の合成で、重みは上位10%側の方が大きく出ます。
+      そこから勝敗の積み上げで動かし、動きすぎないよう縮めます。
+    </p>
+  </section>
+
+  <div class="lx-grid">
+    <section class="lx-card">
+      <h2 id="rematch">ギリギリの勝ちは再現しない</h2>
+      <p class="lx-note">同じ2人が複数回あたった395組で、初戦の勝ち幅ごとに「次も同じ人が勝った率」を出したもの（1次・2次の全4人未満の試合、再戦ぶんも含む）。</p>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="rematch" data-row-key="margin">
+          <thead><tr>
+            <th class="lx-left lx-wide" data-field="margin">初戦の勝ち幅</th>
+            <th data-field="n">件数</th>
+            <th data-field="repeat_pct">再現率 %</th>
+            <th data-field="ci95">±95%</th>
+          </tr></thead>
+          <tbody id="lx-rematch"></tbody>
+        </table>
+      </div>
+      <p class="lx-note">
+        1.1〜1.5倍で勝った試合は、次に当たると<b>勝ち越せていません</b>（39.6%）。10倍以上の大差なら63.0%で再現します。
+        ただし<b>接戦を割引いて予測すると逆に外れます</b>（上の表の「勝ち幅で重みづけ」「1.5倍未満は引き分け扱い」）。
+        当てたいのは勝敗そのもので、接戦で勝ち切る力も続く特性だからです。勝ち幅の情報は、土台に入れたコインの上側が受け持っています。
+      </p>
+    </section>
+
+    <section class="lx-card">
+      <h2 id="sensitivity">ボーダーは「何戦埋まるか」で決まる</h2>
+      <p class="lx-note">24ペアのうち何割が成立するかを振った20,000回のシミュレーション。横棒が10〜90%の範囲、点が中央値。</p>
+      <div class="lx-legend" id="lx-sens-legend"></div>
+      <div class="lx-chart" id="lx-sens" style="min-height:260px"></div>
+      <p class="lx-note">7日で24人と当てるペースは2次（1人平均36.8戦／10日）なら届くので、残るのはマッチングの運です。85〜92%が現実的な線。</p>
+    </section>
+
+    <section class="lx-card">
+      <h2 id="wins">ボーダーに必要な勝ち数</h2>
+      <p class="lx-note">持ち越しボーナス別に、<span class="lx-val" data-source="sensitivity-three" data-field="mix_median" data-where="coverage=0.9">—</span>点へ届く最少の勝ち数（勝ち4点・負け1点。引き分けは1次2次を通じて0件）。</p>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="wins-needed" data-row-key="games">
+          <thead><tr>
+            <th class="lx-left" data-field="games">試合数</th>
+            <th data-field="b0">+0</th><th data-field="b2">+2</th><th data-field="b5">+5</th>
+            <th data-field="b8">+8</th><th data-field="b10">+10</th>
+          </tr></thead>
+          <tbody id="lx-wins"></tbody>
+        </table>
+      </div>
+      <p class="lx-note">24戦を埋めれば勝率54%で足ります。18戦だと83%必要で、取りこぼしがそのまま効きます。</p>
+    </section>
+  </div>
+
+  <section class="lx-card">
+    <h2 id="players">25名の予測</h2>
+    <p class="lx-note">2次予選の対戦（1次は重み0.5）から強さを推定し、ペア成立率90%で20,000回まわした平均。点線が予想ボーダー。</p>
+    <div class="lx-legend" id="lx-dots-legend"></div>
+    <div class="lx-chart" id="lx-dots" style="min-height:430px"></div>
+    <div class="lx-scroll lx-tall">
+      <table class="lx-table" data-source="forecast-three" data-row-key="name">
+        <thead><tr>
+          <th class="lx-rank" data-field="rank">#</th>
+          <th class="lx-name" data-field="name">ライバー</th>
+          <th data-field="bonus">ボ</th>
+          <th data-field="coin_median">コイン中央値</th>
+          <th data-field="coin_top10">上位10%</th>
+          <th data-field="sure_wins">確勝 3倍+</th>
+          <th data-field="net_luck">接戦 収支</th>
+          <th data-field="r2_total">2次 総合点</th>
+          <th data-field="mix_points">予測 勝ち点</th>
+          <th data-field="mix_pass">通過率 %</th>
+          <th data-field="wl_pass">勝敗版 %</th>
+          <th data-field="coin_pass">コイン版 %</th>
+        </tr></thead>
+        <tbody id="lx-forecast"></tbody>
+      </table>
+    </div>
+    <p class="lx-note">色が濃い行が予測上位8名。定義を替えると通過率は動きますが、上位8名の顔ぶれは3定義で一致します。</p>
+  </section>
+
+  <div class="lx-grid">
+    <section class="lx-card">
+      <h2 id="r2">2次予選はここで切れた</h2>
+      <p class="lx-note">ボーダー前後10名。通過は総合点の上位25名で、<span class="lx-val" data-source="stages" data-field="border" data-where="stage=2次予選">—</span>点が最後の1枠でした。</p>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="r2-border" data-row-key="rank">
+          <thead><tr>
+            <th class="lx-rank" data-field="rank">#</th>
+            <th class="lx-name" data-field="name">ライバー</th>
+            <th data-field="games">試合</th><th data-field="wins">勝</th>
+            <th data-field="points">勝ち点</th><th data-field="bonus">ボ</th>
+            <th data-field="total">総合点</th><th data-field="result">結果</th>
+          </tr></thead>
+          <tbody id="lx-r2"></tbody>
+        </table>
+      </div>
+      <p class="lx-note">1点差で2名が落選。勝率73%の26位は33試合しか組めず、勝率51%・41試合の25位に抜かれました。</p>
+    </section>
+
+    <section class="lx-card">
+      <h2 id="stages">3ステージの条件</h2>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="stages" data-row-key="stage">
+          <thead><tr>
+            <th class="lx-left" data-field="stage">ステージ</th>
+            <th class="lx-left" data-field="period">期間</th>
+            <th data-field="days">日数</th><th data-field="players">人数</th>
+            <th data-field="slots">枠</th><th data-field="max_points">上限</th>
+            <th data-field="border">ボーダー</th>
+          </tr></thead>
+          <tbody id="lx-stages"></tbody>
+        </table>
+      </div>
+      <p class="lx-note">1次・2次は実績値、最終予選は予想値。枠が狭くなる一方で稼げる点の上限も下がるため、1試合の重みは2次の約2倍です。</p>
+      <div class="lx-foot">
+        <p>計算のしかた</p>
+        <ul>
+          <li>コインは1試合あたりの log で見る。総量は試合数と混ざるため使わない。普段の集客は中央値、太客がついたときに出せる額は上位10%で表す。</li>
+          <li>合わせ技は、その2つで置いた土台から勝敗の尤度で動かし、動きすぎないように縮める（縮め方の強さは1次予選のデータだけで選定）。</li>
+          <li>接戦を割引く重みづけは短期で有意に悪化したため入れていない（logloss +0.020 ± 0.014）。</li>
+          <li>各ペアが成立するかを、2次で実際に埋めた割合から決めた個人の稼働係数で抽選し、勝敗を推定確率で決めて20,000回集計。</li>
+          <li>マイナスのスコアは一か八かのギフトによるもので、集客力とは別物。中央値なので結果はほぼ動かない（1に丸めても符号つきlogでも予測は同じ）。</li>
+          <li>通過条件は総合点（勝ち点＋ボーナス）。同点は勝ち数→得失点差→総得点。4コラ本戦の採点は含まない。</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+window.LX = (function () {
+  const num = (v) => (v == null || v === "" ? NaN : Number(v));
+  const rowsOf = (res) => (res && res.status === "ok" && Array.isArray(res.data) ? res.data : []);
+  const find = (rows, where) => {
+    const conds = String(where).split("&").map((kv) => kv.split("=").map(decodeURIComponent));
+    return rows.find((r) => conds.every(([k, v]) => String(r[k]) === v));
+  };
+  const cut = (s, n) => {
+    const seg = typeof Intl !== "undefined" && Intl.Segmenter
+      ? Array.from(new Intl.Segmenter("ja", { granularity: "grapheme" }).segment(s), (x) => x.segment)
+      : Array.from(s);
+    return seg.length <= n ? s : seg.slice(0, n).join("") + "…";
+  };
+  return { num, rowsOf, find, cut };
+})();
+</script>
+
+<script>
+(function () {
+  const { num, rowsOf, find, cut } = window.LX;
+  const $ = (s) => document.querySelector(s);
+  const pct = d3.format(".0%");
+  const grp = d3.format(",");
+  // 3つの定義の見せ方（色と印）を1か所で決める
+  const DEFS = [
+    { key: "mix", label: "合わせ技（採用）", color: () => dash.colors[0], filled: true },
+    { key: "wl", label: "勝敗のみ", color: () => dash.colors[1], filled: false },
+    { key: "coin", label: "コインのみ", color: () => dash.colors[2], filled: false },
+  ];
+
+  function fillValues() {
+    document.querySelectorAll(".lx-val[data-source][data-field]").forEach((el) => {
+      const res = dash.data(el.dataset.source);
+      const rows = rowsOf(res);
+      el.classList.toggle("dash-skeleton", res.status === "loading");
+      const row = el.dataset.where ? find(rows, el.dataset.where) : rows[0];
+      const raw = row ? row[el.dataset.field] : null;
+      if (raw == null || raw === "") { el.textContent = "—"; return; }
+      el.textContent = el.dataset.fmt === "pct" ? pct(num(raw)) : String(raw);
+    });
+  }
+  const cell = (tr, text, cls) => {
+    const td = document.createElement("td");
+    if (cls) td.className = cls;
+    td.textContent = text == null ? "" : String(text);
+    tr.appendChild(td);
+    return td;
+  };
+  function legend(box, items) {
+    box.textContent = "";
+    items.forEach(({ label, color, filled }) => {
+      const s = document.createElement("span");
+      s.style.color = color();
+      const i = document.createElement("i");
+      if (filled) i.style.background = color(); else i.className = "open";
+      const t = document.createElement("span");
+      t.style.color = "var(--color-fg-muted)";
+      t.textContent = label;
+      s.appendChild(i); s.appendChild(t);
+      box.appendChild(s);
+    });
+  }
+
+  function drawModels() {
+    const tb = $("#lx-models");
+    tb.textContent = "";
+    const rows = rowsOf(dash.data("models"));
+    const bestByRegime = new Map();
+    rows.forEach((r) => {
+      const cur = bestByRegime.get(r.regime);
+      if (!cur || num(r.logloss) < num(cur.logloss)) bestByRegime.set(r.regime, r);
+    });
+    rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.dataset.key = encodeURIComponent(r.regime) + "," + encodeURIComponent(r.model);
+      if (bestByRegime.get(r.regime) === r) tr.className = "lx-best";
+      cell(tr, r.regime, "lx-left lx-wide");
+      cell(tr, r.model, "lx-left lx-wide");
+      cell(tr, r.accuracy);
+      cell(tr, r.logloss);
+      cell(tr, r.auc);
+      tb.appendChild(tr);
+    });
+  }
+  function drawRematch() {
+    const tb = $("#lx-rematch");
+    tb.textContent = "";
+    rowsOf(dash.data("rematch")).forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.dataset.key = r.margin;
+      if (num(r.repeat_pct) < 50) tr.className = "lx-out";
+      else if (num(r.repeat_pct) >= 60) tr.className = "lx-in";
+      cell(tr, r.margin, "lx-left lx-wide");
+      cell(tr, r.n); cell(tr, r.repeat_pct); cell(tr, r.ci95);
+      tb.appendChild(tr);
+    });
+  }
+  function drawWins() {
+    const tb = $("#lx-wins");
+    tb.textContent = "";
+    rowsOf(dash.data("wins-needed")).forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.dataset.key = r.games;
+      cell(tr, r.games + "戦", "lx-left");
+      ["b0", "b2", "b5", "b8", "b10"].forEach((k) => cell(tr, r[k]));
+      tb.appendChild(tr);
+    });
+  }
+  function drawStages() {
+    const tb = $("#lx-stages");
+    tb.textContent = "";
+    rowsOf(dash.data("stages")).forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.dataset.key = r.stage;
+      if (r.border_type === "予想") tr.className = "lx-in";
+      cell(tr, r.stage, "lx-left"); cell(tr, r.period, "lx-left");
+      cell(tr, r.days); cell(tr, r.players); cell(tr, r.slots);
+      cell(tr, r.max_points); cell(tr, r.border);
+      tb.appendChild(tr);
+    });
+  }
+  function drawR2() {
+    const tb = $("#lx-r2");
+    tb.textContent = "";
+    rowsOf(dash.data("r2-border")).forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.dataset.key = r.rank;
+      tr.className = r.result === "通過" ? "lx-in" : "lx-out";
+      cell(tr, r.rank, "lx-rank"); cell(tr, r.name, "lx-name");
+      cell(tr, r.games); cell(tr, r.wins); cell(tr, r.points);
+      cell(tr, r.bonus); cell(tr, r.total); cell(tr, r.result);
+      tb.appendChild(tr);
+    });
+  }
+  function drawForecastTable() {
+    const tb = $("#lx-forecast");
+    tb.textContent = "";
+    rowsOf(dash.data("forecast-three")).forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.dataset.key = r.name;
+      if (num(r.rank) <= 8) tr.className = "lx-in";
+      cell(tr, r.rank, "lx-rank"); cell(tr, r.name, "lx-name");
+      cell(tr, r.bonus);
+      cell(tr, isFinite(num(r.coin_median)) ? grp(num(r.coin_median)) : r.coin_median);
+      cell(tr, isFinite(num(r.coin_top10)) ? grp(num(r.coin_top10)) : r.coin_top10);
+      cell(tr, r.sure_wins);
+      cell(tr, num(r.net_luck) > 0 ? "+" + r.net_luck : r.net_luck);
+      cell(tr, r.r2_total); cell(tr, r.mix_points);
+      const td = cell(tr, null);
+      const box = document.createElement("span");
+      box.className = "lx-barcell";
+      const bar = document.createElement("span");
+      bar.className = "lx-bar";
+      const fill = document.createElement("i");
+      fill.style.width = Math.max(0, Math.min(100, num(r.mix_pass))) + "%";
+      bar.appendChild(fill);
+      const n = document.createElement("span");
+      n.textContent = r.mix_pass;
+      box.appendChild(bar); box.appendChild(n);
+      td.appendChild(box);
+      cell(tr, r.wl_pass); cell(tr, r.coin_pass);
+      tb.appendChild(tr);
+    });
+  }
+
+  const axisBottom = (svg, x, y, ticks) => {
+    const g = svg.append("g");
+    x.ticks(ticks).forEach((t) => {
+      g.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", 0).attr("y2", y)
+        .attr("stroke", "var(--cds-chart-grid)").attr("stroke-width", 1);
+      g.append("text").attr("x", x(t)).attr("y", y + 14).attr("text-anchor", "middle")
+        .attr("fill", "var(--color-fg-muted)").attr("font-size", 11).text(t);
+    });
+    return g;
+  };
+  const measurer = (svg) => {
+    const probe = svg.append("g").attr("visibility", "hidden");
+    const len = (t, size) => {
+      const n = probe.append("text").attr("font-size", size).text(t).node();
+      const v = n.getComputedTextLength();
+      n.remove();
+      return v;
+    };
+    return { len, done: () => probe.remove() };
+  };
+
+  function drawSens() {
+    const box = $("#lx-sens");
+    const rows = rowsOf(dash.data("sensitivity-three"))
+      .map((r) => ({ cov: num(r.coverage), games: num(r.games), v: Object.fromEntries(DEFS.map((d) =>
+        [d.key, { med: num(r[d.key + "_median"]), lo: num(r[d.key + "_p10"]), hi: num(r[d.key + "_p90"]) }])) }))
+      .sort((a, b) => a.cov - b.cov);
+    legend($("#lx-sens-legend"), DEFS);
+    box.textContent = "";
+    if (!rows.length) { box.classList.add("dash-skeleton"); return; }
+    box.classList.remove("dash-skeleton");
+
+    const w = Math.max(240, box.clientWidth || 320);
+    const lineH = 20, groupGap = 16, mT = 8, mB = 30;
+    const h = mT + rows.length * (DEFS.length * lineH + groupGap) + mB;
+    const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", "0 0 " + w + " " + h);
+    const m = measurer(svg);
+    const left = Math.min(w * 0.3, Math.max(
+      ...rows.map((r) => m.len(pct(r.cov) + " 約" + r.games + "戦", 11)),
+      ...DEFS.map((d) => m.len(d.label.replace("（採用）", ""), 10))) + 10);
+    const right = m.len("00点", 12) + 8;
+    m.done();
+    const lo = d3.min(rows, (r) => d3.min(DEFS, (d) => r.v[d.key].lo));
+    const hi = d3.max(rows, (r) => d3.max(DEFS, (d) => r.v[d.key].hi));
+    const x = d3.scaleLinear([lo - 2, hi + 2], [left, w - right]);
+    axisBottom(svg, x, mT + rows.length * (DEFS.length * lineH + groupGap), 6);
+
+    rows.forEach((r, gi) => {
+      const y0 = mT + gi * (DEFS.length * lineH + groupGap);
+      svg.append("text").attr("x", 0).attr("y", y0 + 12).attr("font-size", 11).attr("fill", "var(--color-fg)")
+        .text(pct(r.cov) + " 約" + r.games + "戦");
+      DEFS.forEach((d, di) => {
+        const cy = y0 + 18 + di * lineH + lineH / 2;
+        const o = r.v[d.key], col = d.color();
+        svg.append("text").attr("x", 10).attr("y", cy + 3).attr("font-size", 10).attr("fill", "var(--color-fg-muted)")
+          .text(d.label.replace("（採用）", ""));
+        svg.append("line").attr("x1", x(o.lo)).attr("x2", x(o.hi)).attr("y1", cy).attr("y2", cy)
+          .attr("stroke", col).attr("stroke-width", 7).attr("stroke-linecap", "round").attr("opacity", d.filled ? 0.35 : 0.22);
+        const dot = svg.append("circle").attr("cx", x(o.med)).attr("cy", cy).attr("r", d.filled ? 5.5 : 4.5);
+        if (d.filled) dot.attr("fill", col).attr("stroke", "var(--color-panel)").attr("stroke-width", 1.5);
+        else dot.attr("fill", "var(--color-panel)").attr("stroke", col).attr("stroke-width", 2);
+        svg.append("text").attr("x", w - right + 5).attr("y", cy + 4).attr("font-size", 12)
+          .attr("fill", d.filled ? "var(--color-fg)" : "var(--color-fg-muted)").text(o.med + "点");
+      });
+    });
+  }
+
+  function drawDots() {
+    const box = $("#lx-dots");
+    const rows = rowsOf(dash.data("forecast-three")).map((r) => ({
+      name: r.name, rank: num(r.rank), r2: r.r2_total, coin: num(r.coin_median),
+      v: Object.fromEntries(DEFS.map((d) => [d.key, { pts: num(r[d.key + "_points"]), pass: num(r[d.key + "_pass"]) }])),
+    })).sort((a, b) => a.rank - b.rank);
+    const sens = find(rowsOf(dash.data("sensitivity-three")), "coverage=0.9");
+    legend($("#lx-dots-legend"), DEFS);
+    box.textContent = "";
+    if (!rows.length) { box.classList.add("dash-skeleton"); return; }
+    box.classList.remove("dash-skeleton");
+
+    const w = Math.max(240, box.clientWidth || 320);
+    const narrow = w < 520;
+    const rowH = narrow ? 17 : 19, mT = 18, mB = 30;
+    const h = mT + rows.length * rowH + mB;
+    const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", "0 0 " + w + " " + h);
+    const m = measurer(svg);
+    const labels = rows.map((r) => cut(r.name, narrow ? 7 : 12));
+    const left = Math.min(w * 0.42, Math.max(...labels.map((t) => m.len(t, 11))) + 8);
+    const right = m.len("00.0", 11) + 12;
+    m.done();
+    const lo = d3.min(rows, (r) => d3.min(DEFS, (d) => r.v[d.key].pts));
+    const hi = d3.max(rows, (r) => d3.max(DEFS, (d) => r.v[d.key].pts));
+    const x = d3.scaleLinear([lo - 3, hi + 3], [left, w - right]);
+    axisBottom(svg, x, mT + rows.length * rowH, narrow ? 4 : 6);
+
+    if (sens) {
+      const bx = x(num(sens.mix_median));
+      svg.append("line").attr("x1", bx).attr("x2", bx).attr("y1", mT - 12).attr("y2", mT + rows.length * rowH)
+        .attr("stroke", "var(--cds-chart-reference)").attr("stroke-width", 1).attr("stroke-dasharray", "3 3");
+      svg.append("text").attr("x", bx).attr("y", mT - 16).attr("text-anchor", "middle")
+        .attr("fill", "var(--color-fg-muted)").attr("font-size", 11).text("予想ボーダー " + sens.mix_median + "点");
+    }
+
+    const tip = document.createElement("div");
+    tip.className = "lx-tip";
+    box.appendChild(tip);
+    const show = (r, cx, cy) => {
+      tip.textContent = "";
+      const head = document.createElement("div");
+      head.className = "lx-tip-name";
+      head.textContent = r.name + (isFinite(r.coin) ? "　コイン " + grp(r.coin) : "");
+      tip.appendChild(head);
+      DEFS.forEach((d) => {
+        const line = document.createElement("div");
+        line.className = "lx-tip-row";
+        const a = document.createElement("span");
+        const sw = document.createElement("i");
+        sw.style.background = d.color();
+        a.appendChild(sw);
+        a.appendChild(document.createTextNode(d.label.replace("（採用）", "")));
+        const b = document.createElement("span");
+        b.textContent = r.v[d.key].pts.toFixed(1) + "点 / " + r.v[d.key].pass.toFixed(1) + "%";
+        line.appendChild(a); line.appendChild(b);
+        tip.appendChild(line);
+      });
+      tip.style.opacity = "1";
+      const scale = (box.clientWidth || w) / w;
+      const tw = tip.offsetWidth;
+      tip.style.left = Math.max(0, Math.min((box.clientWidth || w) - tw, cx * scale - tw / 2)) + "px";
+      tip.style.top = Math.max(0, cy * scale - tip.offsetHeight - 10) + "px";
+    };
+
+    rows.forEach((r, i) => {
+      const cy = mT + i * rowH + rowH / 2;
+      const inside = r.rank <= 8;
+      svg.append("text").attr("x", 0).attr("y", cy + 4).attr("font-size", 11)
+        .attr("fill", inside ? "var(--color-fg)" : "var(--color-fg-muted)").text(labels[i]);
+      const xs = DEFS.map((d) => x(r.v[d.key].pts));
+      svg.append("line").attr("x1", Math.min(...xs)).attr("x2", Math.max(...xs)).attr("y1", cy).attr("y2", cy)
+        .attr("stroke", "var(--cds-chart-grid)").attr("stroke-width", 1.5);
+      const dots = DEFS.map((d, di) => {
+        const c = svg.append("circle").attr("cx", xs[di]).attr("cy", cy).attr("r", d.filled ? 5 : 3.6);
+        if (d.filled) c.attr("fill", d.color());
+        else c.attr("fill", "var(--color-panel)").attr("stroke", d.color()).attr("stroke-width", 1.6);
+        return c;
+      });
+      svg.append("text").attr("x", w - right + 6).attr("y", cy + 4).attr("font-size", 11)
+        .attr("fill", "var(--color-fg-muted)").text(r.v.mix.pts.toFixed(1));
+      svg.append("rect").attr("x", 0).attr("y", cy - rowH / 2).attr("width", w).attr("height", rowH)
+        .attr("fill", "transparent")
+        .on("mouseenter", () => { dots.forEach((c, di) => c.attr("r", DEFS[di].filled ? 7 : 5)); show(r, xs[0], cy); })
+        .on("mouseleave", () => { dots.forEach((c, di) => c.attr("r", DEFS[di].filled ? 5 : 3.6)); tip.style.opacity = "0"; });
+    });
+  }
+
+  dash.onData(() => {
+    fillValues();
+    drawModels(); drawWins(); drawStages(); drawR2(); drawForecastTable(); drawRematch();
+    drawSens(); drawDots();
+  });
+})();
+</script>
+
+<p class="lx-pagefoot">LOOP4 最終予選ボーダー予想 · データ更新 2026-10-12</p>
+</div></body></html>
