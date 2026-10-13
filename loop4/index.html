@@ -152,6 +152,80 @@ window.dash=(function(){
     </div>
   </section>
 
+<section class="lx-card" id="lx-live">
+  <h2 id="live">途中経過（ライブ）</h2>
+  <p class="lx-note" id="lx-live-status">読み込み中…</p>
+  <div class="lx-tiles" id="lx-live-tiles"></div>
+  <div class="lx-scroll lx-tall">
+    <table class="lx-table">
+      <thead><tr>
+        <th class="lx-rank">#</th><th class="lx-name">ライバー</th>
+        <th>試合</th><th>勝-敗</th><th>勝ち点</th><th>ボ</th><th>総合点</th>
+        <th>予想順位</th><th>予想通過率 %</th><th>得失点差</th>
+      </tr></thead>
+      <tbody id="lx-live-body"></tbody>
+    </table>
+  </div>
+  <p class="lx-note">vs-round-robin.shogun.works の順位表を60秒ごとに読み直します。予想は大会開始前のもので、上位8名の行に色がついています。</p>
+</section>
+<script>
+(function () {
+  const API = "https://vs-round-robin.shogun.works/api/standings?tournamentID=9";
+  const $ = (s) => document.querySelector(s);
+  const fmt = d3.format(",");
+  const tile = (label, value, note) => {
+    const d = document.createElement("div"); d.className = "lx-tile";
+    const a = document.createElement("span"); a.className = "lx-tile-label"; a.textContent = label;
+    const b = document.createElement("span"); b.className = "lx-tile-value"; b.textContent = value;
+    d.append(a, b);
+    if (note) { const c = document.createElement("span"); c.className = "lx-tile-note"; c.textContent = note; d.append(c); }
+    return d;
+  };
+  let last = null;
+  function render() {
+    if (!last) return;
+    const { tournament: t, standings: s, results: r, pairsTotal } = last;
+    const fc = new Map((dash.data("forecast-three").data || []).map((x) => [x.name, x]));
+    const start = new Date(t.starts_at), end = new Date(t.ends_at), now = new Date();
+    const frac = Math.min(1, Math.max(1e-6, (now - start) / (end - start)));
+    const n = s.length, matches = r.length;
+    const perPlayer = (2 * matches) / n;
+    const projGames = perPlayer / frac;
+    const tiles = $("#lx-live-tiles"); tiles.textContent = "";
+    tiles.append(
+      tile("消化試合", matches + " / " + pairsTotal, "成立率 " + (100 * matches / pairsTotal).toFixed(1) + "%"),
+      tile("経過", (100 * frac).toFixed(1) + "%", "残り " + Math.max(0, (end - now) / 36e5).toFixed(0) + " 時間"),
+      tile("このペースだと1人あたり", projGames.toFixed(1) + " 戦", "予想の前提は約22戦"),
+      tile("未出場", s.filter((x) => +x.played === 0).length + " 名", n + "名中")
+    );
+    const tb = $("#lx-live-body"); tb.textContent = "";
+    s.forEach((x, i) => {
+      const f = fc.get(x.display_name);
+      const tr = document.createElement("tr");
+      if (i < 8) tr.className = "lx-in";
+      const c = (v, cls) => { const td = document.createElement("td"); if (cls) td.className = cls; td.textContent = v; tr.append(td); };
+      c(i + 1, "lx-rank"); c(x.display_name, "lx-name"); c(x.played); c(x.wins + "-" + x.losses);
+      c(x.points); c(x.bonus_points); c(x.total_points);
+      c(f ? f.rank : "—"); c(f ? f.mix_pass : "—");
+      c((+x.score_diff > 0 ? "+" : "") + fmt(+x.score_diff));
+      tb.append(tr);
+    });
+    $("#lx-live-status").textContent = t.name + "　更新 " + now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+  }
+  async function load() {
+    try {
+      const res = await fetch(API, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      last = await res.json(); render();
+    } catch (e) {
+      $("#lx-live-status").textContent = "途中経過を読み込めませんでした（" + e.message + "）。";
+    }
+  }
+  dash.onData(render);
+  load(); setInterval(load, 60000);
+})();
+</script>
+
   <section class="lx-card">
     <h2 id="models">強さをどう定義するか</h2>
     <p class="lx-note">
